@@ -21,19 +21,39 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
     LoadDealsEvent event,
     Emitter<DealsState> emit,
   ) async {
-    emit(DealsLoading());
+    final currentState = state;
 
-    final Either<Failure, List<Deal>> result = 
-          await getDeals(page: event.page, pageSize: event.pageSize);
+    List<Deal> existingDeals = [];
+    if (currentState is DealsLoaded) {
+      existingDeals = currentState.deals;
+    } else if (currentState is DealsLoadingMore) {
+      existingDeals = currentState.existingDeals;
+    }
+
+    emit(DealsLoadingMore(existingDeals: existingDeals));
+
+    final Either<Failure, List<Deal>> result = await getDeals(
+      page: event.page,
+      pageSize: event.pageSize,
+    );
 
     result.fold(
-      (failure) => emit(DealsError(_mapFailureToMessage(failure))),
-      (deals) {
-        if (deals.isEmpty) {
-          emit(DealsError('No deals found.'));
-        } else {
-          emit(DealsLoaded(deals));
-        }
+      (failure) {
+        emit(DealsError(_mapFailureToMessage(failure)));
+        emit(DealsLoaded(existingDeals, hasMore: true));
+      },
+      (newDeals) {
+        final combinedDeals = (existingDeals + newDeals)
+            .fold<Map<String, Deal>>({}, (map, deal) {
+              map[deal.id] = deal;
+              return map;
+            })
+            .values
+            .toList();
+
+        final hasMore = newDeals.length == event.pageSize;
+
+        emit(DealsLoaded(combinedDeals, hasMore: hasMore));
       },
     );
   }

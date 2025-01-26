@@ -26,3 +26,13 @@ class UnexpectedFailure extends Failure {
   const UnexpectedFailure([String? message])
       : super(message ?? 'An unexpected error occurred.');
 }
+
+class CacheFailure extends Failure {
+  const CacheFailure([String? message])
+      : super(message ?? 'An error occurred while accessing the cache.');
+}
+
+class NotFoundFailure extends Failure {
+  const NotFoundFailure([String? message])
+      : super(message ?? 'The requested resource was not found.');
+}

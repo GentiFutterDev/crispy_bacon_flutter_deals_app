@@ -25,14 +25,15 @@ import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/ge
     as _i595;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/bloc/deals_bloc.dart'
     as _i339;
-import 'package:crispy_bacon_flutter_deals_app/features/theme/data/hive_theme_repository.dart'
-    as _i371;
+import 'package:crispy_bacon_flutter_deals_app/features/theme/data/theme_repository_impl.dart'
+    as _i553;
 import 'package:crispy_bacon_flutter_deals_app/features/theme/domain/theme_repository.dart'
     as _i777;
 import 'package:crispy_bacon_flutter_deals_app/features/theme/presentation/theme_bloc.dart'
     as _i50;
+import 'package:crispy_bacon_flutter_deals_app/infrastructure/database/app_database.dart'
+    as _i23;
 import 'package:get_it/get_it.dart' as _i174;
-import 'package:hive_flutter/hive_flutter.dart' as _i986;
 import 'package:injectable/injectable.dart' as _i526;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -47,6 +48,7 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final networkModule = _$NetworkModule();
+    gh.lazySingleton<_i23.AppDatabase>(() => _i23.AppDatabase());
     gh.lazySingleton<_i504.AppLogger>(() => _i691.LoggerImpl());
     gh.factory<String>(
       () => networkModule.baseUrl,
@@ -57,11 +59,13 @@ extension GetItInjectableX on _i174.GetIt {
           logger: gh<_i504.AppLogger>(),
         ));
     gh.lazySingleton<_i777.ThemeRepository>(
-        () => _i371.HiveThemeRepository(gh<_i986.Box<dynamic>>()));
+        () => _i553.ThemeRepositoryImpl(gh<_i23.AppDatabase>()));
+    gh.lazySingleton<_i36.DealsRepository>(() => _i583.DealsRepositoryImpl(
+          gh<_i468.DioClient>(),
+          gh<_i504.AppLogger>(),
+        ));
     gh.factory<_i50.ThemeBloc>(
         () => _i50.ThemeBloc(gh<_i777.ThemeRepository>()));
-    gh.lazySingleton<_i36.DealsRepository>(
-        () => _i583.DealsRepositoryImpl(gh<_i468.DioClient>()));
     gh.factory<_i595.GetDeals>(
         () => _i595.GetDeals(gh<_i36.DealsRepository>()));
     gh.factory<_i339.DealsBloc>(() => _i339.DealsBloc(gh<_i595.GetDeals>()));
