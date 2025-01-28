@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:crispy_bacon_flutter_deals_app/infrastructure/database/tables/deals_table.dart';
+import 'package:crispy_bacon_flutter_deals_app/infrastructure/database/tables/liked_deal_table.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:injectable/injectable.dart';
@@ -9,7 +11,7 @@ import 'tables/settings_table.dart';
 part 'app_database.g.dart';
 
 @LazySingleton()
-@DriftDatabase(tables: [Settings])
+@DriftDatabase(tables: [Settings, Deals, LikedDeals])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 

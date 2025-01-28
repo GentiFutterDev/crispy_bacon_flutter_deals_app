@@ -24,3 +24,10 @@ class DealsError extends DealsState {
 
   DealsError(this.message);
 }
+
+class DealsLikedUpdated extends DealsState {
+  final String dealId;
+  final bool isLiked;
+
+  DealsLikedUpdated({required this.dealId, required this.isLiked});
+}

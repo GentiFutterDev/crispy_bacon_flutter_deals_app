@@ -16,3 +16,12 @@ class LoadDealsEvent extends DealsEvent {
   @override
   List<Object?> get props => [page, pageSize];
 }
+
+class ToggleLikeDealEvent extends DealsEvent {
+  final String dealId;
+
+  const ToggleLikeDealEvent({required this.dealId});
+
+  @override
+  List<Object?> get props => [dealId];
+}

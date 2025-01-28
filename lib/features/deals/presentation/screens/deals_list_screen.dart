@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/bloc/deals_bloc.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/widgets/deal_card_widget.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/widgets/error_with_retry_widget.dart';
+import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/widgets/price_filter_widget.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/theme/presentation/theme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,6 +74,37 @@ class _DealsListScreenState extends State<DealsListScreen> {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+          decoration: BoxDecoration(
+            color: Colors.yellow,
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          child: InkWell(
+            onTap: () {
+              _showPriceFilterDialog(context);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Filter',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                const Icon(Icons.sort, color: Colors.black87),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Column(
@@ -99,9 +131,7 @@ class _DealsListScreenState extends State<DealsListScreen> {
                         ? state.deals
                         : (state as DealsLoadingMore).existingDeals;
 
-                    final hasMore = state is DealsLoaded
-                        ? state.hasMore
-                        : true; 
+                    final hasMore = state is DealsLoaded ? state.hasMore : true;
 
                     if (deals.isEmpty) {
                       return state is DealsLoadingMore
@@ -144,4 +174,20 @@ class _DealsListScreenState extends State<DealsListScreen> {
       ),
     );
   }
+}
+
+void _showPriceFilterDialog(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return PriceFilterDialog(
+        minPrice: 0,
+        maxPrice: 20,
+        onApply: (double minPrice, double maxPrice) {
+          print('Selected Price Range: €$minPrice - €$maxPrice');
+
+        },
+      );
+    },
+  );
 }

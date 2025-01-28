@@ -7,7 +7,10 @@ import 'package:injectable/injectable.dart';
 class DioClient {
   final Dio _dio;
 
-  DioClient({required String baseUrl, required AppLogger logger})
+  DioClient({
+  @Named('BaseUrl') required String baseUrl,
+  required AppLogger logger
+  })
       : _dio = Dio(BaseOptions(
           baseUrl: baseUrl,
           connectTimeout: const Duration(seconds: 5),

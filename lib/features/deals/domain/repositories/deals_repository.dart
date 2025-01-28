@@ -7,5 +7,8 @@ abstract class DealsRepository {
     required int page,
     required int pageSize,
   });
-}
 
+  Future<Either<Failure, void>> likeDeal(String dealId);
+
+  Future<Either<Failure, bool>> isDealLiked(String dealId);
+}

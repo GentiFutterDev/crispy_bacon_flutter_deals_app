@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'deal_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class DealModel extends Deal {
+class DealModel {
   @JsonKey(name: 'dealID')
   final String rawDealID;
 
@@ -34,15 +34,37 @@ class DealModel extends Deal {
     this.rawRating,
     this.rawReleaseDate,
     this.rawMetacriticLink,
-  }) : super(
-          id: rawDealID,
-          title: rawTitle,
-          price: rawSalePrice,
-          thumbnail: rawThumbnail,
-          rating: rawRating,
-          releaseDate: rawReleaseDate,
-          metacriticLink: rawMetacriticLink,
-        );
+  });
+
+  Deal toEntity({bool isLiked = false}) {
+    return Deal(
+      id: rawDealID,
+      title: rawTitle,
+      price: rawSalePrice,
+      thumbnail: rawThumbnail,
+      rating: rawRating,
+      releaseDate: rawReleaseDate,
+      metacriticLink: rawMetacriticLink,
+      isLiked: isLiked,
+    );
+  }
+
+  factory DealModel.fromEntity(Deal deal) {
+    return DealModel(
+      rawDealID: deal.id,
+      rawTitle: deal.title,
+      rawSalePrice: deal.price,
+      rawThumbnail: deal.thumbnail,
+      rawRating: deal.rating,
+      rawReleaseDate: deal.releaseDate,
+      rawMetacriticLink: deal.metacriticLink,
+    );
+  }
+
+  factory DealModel.fromJson(Map<String, dynamic> json) =>
+      _$DealModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DealModelToJson(this);
 
   static double _salePriceFromJson(String salePrice) => double.parse(salePrice);
   static String _salePriceToJson(double salePrice) => salePrice.toString();
@@ -57,9 +79,4 @@ class DealModel extends Deal {
           : null;
   static int? _releaseDateToJson(DateTime? date) =>
       date != null ? (date.millisecondsSinceEpoch ~/ 1000) : null;
-
-  factory DealModel.fromJson(Map<String, dynamic> json) =>
-      _$DealModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DealModelToJson(this);
 }
