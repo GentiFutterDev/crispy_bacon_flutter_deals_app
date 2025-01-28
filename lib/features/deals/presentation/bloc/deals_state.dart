@@ -31,11 +31,3 @@ class DealsError extends DealsState {
 
   DealsError(this.message);
 }
-
-// to be removed from here maybe
-class PriceRange {
-  final double minPrice;
-  final double maxPrice;
-
-  const PriceRange({required this.minPrice, required this.maxPrice});
-}

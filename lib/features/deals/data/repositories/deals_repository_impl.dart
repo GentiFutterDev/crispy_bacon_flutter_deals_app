@@ -1,4 +1,4 @@
-import 'package:crispy_bacon_flutter_deals_app/core/logging/logger.dart';
+import 'package:crispy_bacon_flutter_deals_app/core/utils/logger.dart';
 import 'package:crispy_bacon_flutter_deals_app/core/network/dio_client.dart';
 import 'package:crispy_bacon_flutter_deals_app/core/network/network_info.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/data/datasources/deals_local_data_source.dart';

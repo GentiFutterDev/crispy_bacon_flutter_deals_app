@@ -1,17 +1,16 @@
+import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/entities/price_range.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class PriceFilterDialog extends StatefulWidget {
-  final double minPrice;
-  final double maxPrice;
+  final PriceRange priceRange;
   final Function(double min, double max) onApply;
 
   const PriceFilterDialog({
     super.key,
-    required this.minPrice,
-    required this.maxPrice,
+    required this.priceRange,
     required this.onApply,
   });
 
@@ -25,7 +24,10 @@ class PriceFilterDialogState extends State<PriceFilterDialog> {
   @override
   void initState() {
     super.initState();
-    _priceRange = SfRangeValues(widget.minPrice, widget.maxPrice);
+    _priceRange = SfRangeValues(
+      widget.priceRange.minPrice,
+      widget.priceRange.maxPrice,
+    );
   }
 
   @override
@@ -41,8 +43,8 @@ class PriceFilterDialogState extends State<PriceFilterDialog> {
           ),
           SizedBox(height: 40.h),
           SfRangeSlider(
-            min: widget.minPrice,
-            max: widget.maxPrice,
+            min: 0,
+            max: 30,
             values: _priceRange,
             interval: 5,
             showTicks: true,
@@ -53,7 +55,7 @@ class PriceFilterDialogState extends State<PriceFilterDialog> {
               setState(() {
                 _priceRange = SfRangeValues(
                   values.start.roundToDouble(),
-                  values.end.roundToDouble(),  
+                  values.end.roundToDouble(),
                 );
               });
             },

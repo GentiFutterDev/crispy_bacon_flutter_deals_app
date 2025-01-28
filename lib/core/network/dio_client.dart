@@ -1,4 +1,4 @@
-import 'package:crispy_bacon_flutter_deals_app/core/logging/logger.dart';
+import 'package:crispy_bacon_flutter_deals_app/core/utils/logger.dart';
 import 'package:dio/dio.dart';
 import 'retry_interceptor.dart';
 import 'package:injectable/injectable.dart';

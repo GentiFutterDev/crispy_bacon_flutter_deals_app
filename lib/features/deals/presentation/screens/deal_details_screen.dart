@@ -1,3 +1,4 @@
+import 'package:crispy_bacon_flutter_deals_app/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -33,8 +34,8 @@ class DealDetailsScreen extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black45,
-                      Colors.transparent,
+                      AppColors.black54,
+                      AppColors.transparent,
                     ],
                   ),
                 ),
@@ -46,7 +47,7 @@ class DealDetailsScreen extends StatelessWidget {
             top: 40.h,
             left: 16.w,
             child: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white, size: 30.sp),
+              icon: Icon(Icons.arrow_back, color: AppColors.white, size: 30.sp),
                   onPressed: () {
                 final router = GoRouter.of(context);
                 if (router.canPop()) {
@@ -82,7 +83,7 @@ class DealDetailsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16.r),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white24,
+                              color: AppColors.white24,
                               blurRadius: 20.r,
                               spreadRadius: 5.r,
                             ),
@@ -98,7 +99,7 @@ class DealDetailsScreen extends StatelessWidget {
                             errorBuilder: (context, error, stackTrace) => Icon(
                               Icons.image_not_supported,
                               size: 100.sp,
-                              color: Colors.grey,
+                              color: AppColors.grey,
                             ),
                           ),
                         ),
@@ -161,7 +162,7 @@ class DealDetailsScreen extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: Colors.black12,
+                      color: AppColors.black54,
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Row(
@@ -200,7 +201,7 @@ class DealDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: AppColors.black54,
             blurRadius: 6.r,
             offset: Offset(0, 4.h),
           ),
@@ -218,7 +219,7 @@ class DealDetailsScreen extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) => Icon(
                 Icons.store,
                 size: 22.sp,
-                color: Colors.grey,
+                color: AppColors.grey,
               ),
             ),
           ),
@@ -231,7 +232,7 @@ class DealDetailsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
-                  color: Colors.white,
+                  color: AppColors.white,
                 ),
               ),
               SizedBox(height: 4.h),
@@ -251,7 +252,7 @@ class DealDetailsScreen extends StatelessWidget {
                     originalPrice,
                     style: TextStyle(
                       fontSize: 10.sp,
-                      color: Colors.grey,
+                      color: AppColors.grey,
                       decoration: TextDecoration.lineThrough,
                     ),
                   ),

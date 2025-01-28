@@ -1,3 +1,4 @@
+import 'package:crispy_bacon_flutter_deals_app/core/utils/app_colors.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/bloc/deals_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -106,7 +107,7 @@ class DealCard extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Icon(
                   Icons.image_not_supported,
                   size: 80.sp,
-                  color: Colors.grey,
+                  color: AppColors.grey,
                 ),
               ),
             ),

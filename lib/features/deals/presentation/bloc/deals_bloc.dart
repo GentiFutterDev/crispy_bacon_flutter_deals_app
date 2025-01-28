@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/entities/price_range.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/get_deals_usecase.dart';
-import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/is_deal_liked.dart';
+import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/is_deal_liked_usecase.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/like_deal_usecase.dart';
 import 'package:dartz/dartz.dart';
 import 'package:crispy_bacon_flutter_deals_app/core/error/failure.dart';
@@ -165,9 +166,6 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
         return deal.price >= event.priceRange.minPrice &&
               deal.price <= event.priceRange.maxPrice;
       }).toList();
-
-      print("UnfilteredDeals: ${currentState.unfilteredDeals}");
-      print("FilteredDeals: $filteredDeals");
 
       emit(DealsLoaded(
         unfilteredDeals: currentState.unfilteredDeals,
