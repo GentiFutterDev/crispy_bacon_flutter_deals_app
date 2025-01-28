@@ -36,29 +36,6 @@ import 'package:injectable/injectable.dart';
     }
   }
 
-@override
-Future<Either<Failure, void>> likeDeal(String dealId) async {
-  try {
-    await localDataSource.likeDeal(dealId);
-    return const Right(null);
-  } catch (e) {
-    return Left(CacheFailure('Failed to toggle like status'));
-  }
-}
-
-
-  @override
-  Future<Either<Failure, bool>> isDealLiked(String dealId) async {
-    try {
-      logger.info('Checking if deal with ID: $dealId is liked');
-      final isLiked = await localDataSource.isDealLiked(dealId);
-      logger.debug('Deal with ID $dealId is liked: $isLiked');
-      return Right(isLiked);
-    } catch (e, stackTrace) {
-      logger.error('Error checking like status for deal with ID: $dealId', e, stackTrace);
-      return Left(CacheFailure('Failed to check like status'));
-    }
-  }
 
   Future<Either<Failure, List<Deal>>> _fetchFromRemote({
     required int page,
@@ -67,6 +44,7 @@ Future<Either<Failure, void>> likeDeal(String dealId) async {
     try {
       logger.info('Fetching deals from API for page: $page, pageSize: $pageSize');
 
+      // Fetch deals from API
       final response = await dioClient.dio.get(
         '/deals',
         queryParameters: {
@@ -75,21 +53,25 @@ Future<Either<Failure, void>> likeDeal(String dealId) async {
         },
       );
 
-      final dealModels = (response.data as List).map((json) => DealModel.fromJson(json)).toList();
+      final dealModels = (response.data as List)
+          .map((json) => DealModel.fromJson(json))
+          .toList();
 
       await localDataSource.cacheDeals(dealModels);
-
       logger.debug("Cached Deals");
 
-      final deals = dealModels.map((model) => model.toEntity()).toList();
-      
-      logger.debug("deals: $deals");
+      final deals = await Future.wait(dealModels.map((model) async {
+        final isLiked = await localDataSource.isDealLiked(model.rawDealID);
+        return model.toEntity().copyWith(isLiked: isLiked);
+      }));
+
+      logger.debug("Deals with isLiked state: $deals");
       return Right(deals);
     } on DioException catch (e) {
       logger.error('DioException occurred: ${e.message}', e, e.stackTrace);
       return Left(ServerFailure(e.message));
     } catch (e, stackTrace) {
-      logger.error('Unexpected error occurredHere: $e', e, stackTrace);
+      logger.error('Unexpected error occurred: $e', e, stackTrace);
       return Left(UnexpectedFailure(e.toString()));
     }
   }
@@ -105,11 +87,38 @@ Future<Either<Failure, void>> likeDeal(String dealId) async {
         return Left(CacheFailure('No cached deals available'));
       }
 
-      final deals = cachedDeals.map((model) => model.toEntity()).toList();
+      final deals = await Future.wait(cachedDeals.map((model) async {
+        final isLiked = await localDataSource.isDealLiked(model.rawDealID);
+        return model.toEntity(isLiked: isLiked);
+      }));
+
       return Right(deals);
     } catch (e, stackTrace) {
       logger.error('Error fetching cached deals: $e', e, stackTrace);
       return Left(CacheFailure('Failed to fetch cached deals'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> likeDeal(String dealId) async {
+    try {
+      await localDataSource.likeDeal(dealId);
+      return const Right(null);
+    } catch (e) {
+      return Left(CacheFailure('Failed to toggle like status'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isDealLiked(String dealId) async {
+    try {
+      logger.info('Checking if deal with ID: $dealId is liked');
+      final isLiked = await localDataSource.isDealLiked(dealId);
+      logger.debug('Deal with ID $dealId is liked: $isLiked');
+      return Right(isLiked);
+    } catch (e, stackTrace) {
+      logger.error('Error checking like status for deal with ID: $dealId', e, stackTrace);
+      return Left(CacheFailure('Failed to check like status'));
     }
   }
 }

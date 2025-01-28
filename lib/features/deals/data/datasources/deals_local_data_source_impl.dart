@@ -66,12 +66,26 @@ class DealsLocalDataSourceImpl implements DealsLocalDataSource {
   @override
   Future<void> likeDeal(String dealId) async {
     try {
-      await database.into(database.likedDeals).insertOnConflictUpdate(
-        LikedDealsCompanion(
-          dealId: Value(dealId),
-          isLiked: Value(true),
-        ),
-      );
+      // Check if the deal is already liked
+      final currentEntry = await (database.select(database.likedDeals)
+            ..where((tbl) => tbl.dealId.equals(dealId)))
+          .getSingleOrNull();
+
+      if (currentEntry != null && currentEntry.isLiked) {
+        await database.into(database.likedDeals).insertOnConflictUpdate(
+          LikedDealsCompanion(
+            dealId: Value(dealId),
+            isLiked: Value(false),
+          ),
+        );
+      } else {
+        await database.into(database.likedDeals).insertOnConflictUpdate(
+          LikedDealsCompanion(
+            dealId: Value(dealId),
+            isLiked: Value(true),
+          ),
+        );
+      }
     } catch (e) {
       rethrow;
     }

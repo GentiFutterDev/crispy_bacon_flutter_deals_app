@@ -72,14 +72,10 @@ class DealCard extends StatelessWidget {
                             SizedBox(width: 8.w),
                             BlocBuilder<DealsBloc, DealsState>(
                               builder: (context, state) {
-                                bool isLiked = deal.isLiked;
-                                if (state is DealsLikedUpdated && state.dealId == deal.id) {
-                                  isLiked = state.isLiked;
-                                }
                                 return IconButton(
                                   icon: Icon(
-                                    isLiked ? Icons.thumb_up : Icons.thumb_up_off_alt,
-                                    color: isLiked ? Colors.yellow : Colors.yellow,
+                                    deal.isLiked ? Icons.thumb_up : Icons.thumb_up_off_alt,
+                                    color: const Color.fromARGB(255, 255, 230, 0),
                                   ),
                                   onPressed: () {
                                     context.read<DealsBloc>().add(ToggleLikeDealEvent(dealId: deal.id));

@@ -64,42 +64,45 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
   }
 
   Future<void> _onToggleLikeDeal(
-  ToggleLikeDealEvent event,
-  Emitter<DealsState> emit,
+    ToggleLikeDealEvent event,
+    Emitter<DealsState> emit,
   ) async {
     try {
-      final isLikedResult = await isDealLiked(event.dealId);
-      bool isLiked = false;
+      if (state is DealsLoaded) {
+        final currentState = state as DealsLoaded;
 
-      isLikedResult.fold(
-        (failure) => emit(DealsError('Failed to check like status')),
-        (liked) => isLiked = liked,
-      );
+        final updatedDeals = currentState.deals.map((deal) {
+          if (deal.id == event.dealId) {
+            final newLikedState = !deal.isLiked;
+            return deal.copyWith(isLiked: newLikedState);
+          }
+          return deal;
+        }).toList();
 
-      final toggleResult = await likeDeal(event.dealId);
+        emit(DealsLoaded(updatedDeals, hasMore: currentState.hasMore));
 
-      toggleResult.fold(
-        (failure) => emit(DealsError('Failed to toggle like status')),
-        (_) {
-          if (state is DealsLoaded) {
-            final currentState = state as DealsLoaded;
+        final toggleResult = await likeDeal(event.dealId);
 
-            final updatedDeals = currentState.deals.map((deal) {
+        toggleResult.fold(
+          (failure) {
+            final revertedDeals = updatedDeals.map((deal) {
               if (deal.id == event.dealId) {
-                return deal.copyWith(isLiked: !isLiked);
+                return deal.copyWith(isLiked: !deal.isLiked);
               }
               return deal;
             }).toList();
 
-            emit(DealsLoaded(updatedDeals, hasMore: currentState.hasMore));
-          }
-        },
-      );
+            emit(DealsLoaded(revertedDeals, hasMore: currentState.hasMore));
+            emit(DealsError('Failed to toggle like status'));
+          },
+          (_) {
+          },
+        );
+      }
     } catch (e) {
       emit(DealsError('An unexpected error occurred: ${e.toString()}'));
     }
   }
-
 
   String _mapFailureToMessage(Failure failure) {
     if (failure is ServerFailure) return 'Server failure occurred.';

@@ -25,3 +25,4 @@ class ToggleLikeDealEvent extends DealsEvent {
   @override
   List<Object?> get props => [dealId];
 }
+
