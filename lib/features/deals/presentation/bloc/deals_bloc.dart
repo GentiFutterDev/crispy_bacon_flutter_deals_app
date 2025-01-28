@@ -20,6 +20,7 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
   DealsBloc(this.getDeals, this.likeDeal, this.isDealLiked) : super(DealsInitial()) {
     on<LoadDealsEvent>(_onLoadDeals);
     on<ToggleLikeDealEvent>(_onToggleLikeDeal); 
+    on<ApplyPriceFilterEvent>(_onApplyPriceFilter);
   }
 
   Future<void> _onLoadDeals(
@@ -29,8 +30,11 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
     final currentState = state;
 
     List<Deal> existingDeals = [];
+    PriceRange? currentPriceRange;
+
     if (currentState is DealsLoaded) {
-      existingDeals = currentState.deals;
+      existingDeals = currentState.unfilteredDeals;
+      currentPriceRange = currentState.priceRange;
     } else if (currentState is DealsLoadingMore) {
       existingDeals = currentState.existingDeals;
     }
@@ -45,7 +49,12 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
     result.fold(
       (failure) {
         emit(DealsError(_mapFailureToMessage(failure)));
-        emit(DealsLoaded(existingDeals, hasMore: true));
+        emit(DealsLoaded(
+          unfilteredDeals: existingDeals,
+          filteredDeals: existingDeals,
+          hasMore: true,
+          priceRange: currentPriceRange,
+        ));
       },
       (newDeals) {
         final combinedDeals = (existingDeals + newDeals)
@@ -58,7 +67,21 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
 
         final hasMore = newDeals.length == event.pageSize;
 
-        emit(DealsLoaded(combinedDeals, hasMore: hasMore));
+        // Apply the current price range filter to the updated list of deals
+        final filteredDeals = (currentPriceRange != null)
+            ? combinedDeals.where((deal) {
+                final minPrice = currentPriceRange!.minPrice;
+                final maxPrice = currentPriceRange.maxPrice;
+                return deal.price >= minPrice && deal.price <= maxPrice;
+              }).toList()
+            : combinedDeals;
+
+        emit(DealsLoaded(
+          unfilteredDeals: combinedDeals,
+          filteredDeals: filteredDeals,
+          hasMore: hasMore,
+          priceRange: currentPriceRange,
+        ));
       },
     );
   }
@@ -71,7 +94,7 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
       if (state is DealsLoaded) {
         final currentState = state as DealsLoaded;
 
-        final updatedDeals = currentState.deals.map((deal) {
+        final updatedDeals = currentState.unfilteredDeals.map((deal) {
           if (deal.id == event.dealId) {
             final newLikedState = !deal.isLiked;
             return deal.copyWith(isLiked: newLikedState);
@@ -79,7 +102,20 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
           return deal;
         }).toList();
 
-        emit(DealsLoaded(updatedDeals, hasMore: currentState.hasMore));
+        final filteredDeals = currentState.priceRange != null
+            ? updatedDeals.where((deal) {
+                final minPrice = currentState.priceRange!.minPrice;
+                final maxPrice = currentState.priceRange!.maxPrice;
+                return deal.price >= minPrice && deal.price <= maxPrice;
+              }).toList()
+            : updatedDeals;
+
+        emit(DealsLoaded(
+          unfilteredDeals: updatedDeals,
+          filteredDeals: filteredDeals,
+          hasMore: currentState.hasMore,
+          priceRange: currentState.priceRange,
+        ));
 
         final toggleResult = await likeDeal(event.dealId);
 
@@ -87,12 +123,26 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
           (failure) {
             final revertedDeals = updatedDeals.map((deal) {
               if (deal.id == event.dealId) {
-                return deal.copyWith(isLiked: !deal.isLiked);
+                return deal.copyWith(isLiked: !deal.isLiked); 
               }
               return deal;
             }).toList();
 
-            emit(DealsLoaded(revertedDeals, hasMore: currentState.hasMore));
+            final revertedFilteredDeals = currentState.priceRange != null
+                ? revertedDeals.where((deal) {
+                    final minPrice = currentState.priceRange!.minPrice;
+                    final maxPrice = currentState.priceRange!.maxPrice;
+                    return deal.price >= minPrice && deal.price <= maxPrice;
+                  }).toList()
+                : revertedDeals;
+
+            emit(DealsLoaded(
+              unfilteredDeals: revertedDeals,
+              filteredDeals: revertedFilteredDeals,
+              hasMore: currentState.hasMore,
+              priceRange: currentState.priceRange,
+            ));
+
             emit(DealsError('Failed to toggle like status'));
           },
           (_) {
@@ -101,6 +151,30 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
       }
     } catch (e) {
       emit(DealsError('An unexpected error occurred: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onApplyPriceFilter(
+    ApplyPriceFilterEvent event,
+    Emitter<DealsState> emit,
+  ) async {
+    if (state is DealsLoaded) {
+      final currentState = state as DealsLoaded;
+
+      final filteredDeals = currentState.unfilteredDeals.where((deal) {
+        return deal.price >= event.priceRange.minPrice &&
+              deal.price <= event.priceRange.maxPrice;
+      }).toList();
+
+      print("UnfilteredDeals: ${currentState.unfilteredDeals}");
+      print("FilteredDeals: $filteredDeals");
+
+      emit(DealsLoaded(
+        unfilteredDeals: currentState.unfilteredDeals,
+        filteredDeals: filteredDeals,
+        hasMore: currentState.hasMore,
+        priceRange: event.priceRange,
+      ));
     }
   }
 

@@ -13,14 +13,29 @@ class DealsLoadingMore extends DealsState {
 }
 
 class DealsLoaded extends DealsState {
-  final List<Deal> deals;
-  final bool hasMore;
+  final List<Deal> unfilteredDeals; 
+  final List<Deal> filteredDeals;   
+  final bool hasMore;               
+  final PriceRange? priceRange;     
 
-  DealsLoaded(this.deals, {this.hasMore = true});
+  DealsLoaded({
+    required this.unfilteredDeals,
+    required this.filteredDeals,
+    this.hasMore = true,
+    this.priceRange,
+  });
 }
 
 class DealsError extends DealsState {
   final String message;
 
   DealsError(this.message);
+}
+
+// to be removed from here maybe
+class PriceRange {
+  final double minPrice;
+  final double maxPrice;
+
+  const PriceRange({required this.minPrice, required this.maxPrice});
 }

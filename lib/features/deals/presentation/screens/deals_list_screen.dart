@@ -128,19 +128,13 @@ class _DealsListScreenState extends State<DealsListScreen> {
                     );
                   } else if (state is DealsLoaded || state is DealsLoadingMore) {
                     final deals = state is DealsLoaded
-                        ? state.deals
+                        ? state.filteredDeals
                         : (state as DealsLoadingMore).existingDeals;
 
                     final hasMore = state is DealsLoaded ? state.hasMore : true;
 
                     if (deals.isEmpty) {
-                      return state is DealsLoadingMore
-                          ? const Center(
-                              child: CircularProgressIndicator(),
-                            )
-                          : const Center(
-                              child: Text('No deals found.'),
-                            );
+                      return const Center(child: Text('No deals found.'));
                     }
 
                     return ListView.builder(
@@ -148,23 +142,14 @@ class _DealsListScreenState extends State<DealsListScreen> {
                       itemCount: deals.length + (hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index >= deals.length) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16.h),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
+                          return const Center(child: CircularProgressIndicator());
                         }
                         final deal = deals[index];
                         return DealCard(deal: deal);
                       },
                     );
                   } else {
-                    return ErrorWithRetry(
-                      message: 'Something unexpected happened. Please try again.',
-                      currentPage: _currentPage,
-                      pageSize: _pageSize,
-                    );
+                    return const Center(child: Text('Something unexpected happened.'));
                   }
                 },
               ),
@@ -176,18 +161,25 @@ class _DealsListScreenState extends State<DealsListScreen> {
   }
 }
 
-void _showPriceFilterDialog(BuildContext context) {
+void _showPriceFilterDialog(BuildContext parentContext) {
   showModalBottomSheet(
-    context: context,
+    context: parentContext, // Use the parent context
     builder: (BuildContext context) {
       return PriceFilterDialog(
         minPrice: 0,
-        maxPrice: 20,
+        maxPrice: 30,
         onApply: (double minPrice, double maxPrice) {
-          print('Selected Price Range: €$minPrice - €$maxPrice');
-
+          // Use parentContext to access DealsBloc
+          parentContext.read<DealsBloc>().add(
+            ApplyPriceFilterEvent(
+              PriceRange(minPrice: minPrice, maxPrice: maxPrice),
+            ),
+          );
+          Navigator.pop(context); // Close the modal
         },
       );
     },
   );
 }
+
+

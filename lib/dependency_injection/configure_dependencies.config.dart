@@ -28,6 +28,8 @@ import 'package:crispy_bacon_flutter_deals_app/features/deals/data/repositories/
     as _i583;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/repositories/deals_repository.dart'
     as _i36;
+import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/filter_deals_usecase.dart'
+    as _i811;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/get_deals_usecase.dart'
     as _i595;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/is_deal_liked.dart'
@@ -60,6 +62,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     final coreModule = _$CoreModule();
     final networkModule = _$NetworkModule();
+    gh.factory<_i811.FilterDeals>(() => _i811.FilterDeals());
     gh.lazySingleton<_i895.Connectivity>(() => coreModule.connectivity);
     gh.lazySingleton<_i23.AppDatabase>(() => _i23.AppDatabase());
     gh.lazySingleton<_i504.AppLogger>(() => _i691.LoggerImpl());

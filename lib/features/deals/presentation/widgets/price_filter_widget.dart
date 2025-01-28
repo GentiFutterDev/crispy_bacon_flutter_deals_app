@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class PriceFilterDialog extends StatefulWidget {
@@ -78,7 +79,7 @@ class PriceFilterDialogState extends State<PriceFilterDialog> {
                 _priceRange.start,
                 _priceRange.end,
               );
-              Navigator.pop(context);
+              context.go('/');
             },
             child: const Text('Show Results'),
           ),

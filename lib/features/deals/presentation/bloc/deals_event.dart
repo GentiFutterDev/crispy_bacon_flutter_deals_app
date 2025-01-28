@@ -26,3 +26,11 @@ class ToggleLikeDealEvent extends DealsEvent {
   List<Object?> get props => [dealId];
 }
 
+class ApplyPriceFilterEvent extends DealsEvent {
+  final PriceRange priceRange;
+
+  const ApplyPriceFilterEvent(this.priceRange);
+
+  @override
+  List<Object?> get props => [priceRange];
+}
