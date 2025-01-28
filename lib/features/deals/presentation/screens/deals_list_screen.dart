@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:crispy_bacon_flutter_deals_app/core/platform/vibration_service.dart';
 import 'package:crispy_bacon_flutter_deals_app/core/utils/app_colors.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/entities/price_range.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/bloc/deals_bloc.dart';
@@ -11,7 +12,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DealsListScreen extends StatefulWidget {
-  const DealsListScreen({super.key});
+  final VibrationService vibrationService;
+  
+  const DealsListScreen({super.key, required this.vibrationService});
 
   @override
   State<DealsListScreen> createState() => _DealsListScreenState();
@@ -105,6 +108,7 @@ class _DealsListScreenState extends State<DealsListScreen> {
               ),
               child: InkWell(
                 onTap: () {
+                  widget.vibrationService.customVibrate();
                   _showPriceFilterDialog(context);
                 },
                 child: Row(

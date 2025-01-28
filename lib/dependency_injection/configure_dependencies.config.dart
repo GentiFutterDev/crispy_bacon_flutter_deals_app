@@ -16,6 +16,10 @@ import 'package:crispy_bacon_flutter_deals_app/core/network/network_info.dart'
     as _i442;
 import 'package:crispy_bacon_flutter_deals_app/core/network/network_module.dart'
     as _i995;
+import 'package:crispy_bacon_flutter_deals_app/core/platform/vibration_service.dart'
+    as _i782;
+import 'package:crispy_bacon_flutter_deals_app/core/platform/vibration_service_impl.dart'
+    as _i439;
 import 'package:crispy_bacon_flutter_deals_app/core/utils/logger.dart' as _i612;
 import 'package:crispy_bacon_flutter_deals_app/core/utils/logger_impl.dart'
     as _i584;
@@ -30,7 +34,7 @@ import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/repositorie
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/get_deals_usecase.dart'
     as _i595;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/is_deal_liked_usecase.dart'
-    as _i308;
+    as _i1016;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/domain/usecases/like_deal_usecase.dart'
     as _i676;
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/bloc/deals_bloc.dart'
@@ -65,6 +69,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => networkModule.baseUrl,
       instanceName: 'BaseUrl',
     );
+    gh.lazySingleton<_i782.VibrationService>(
+        () => _i439.VibrationServiceImpl());
     gh.lazySingleton<_i442.NetworkInfo>(
         () => _i442.NetworkInfoImpl(gh<_i895.Connectivity>()));
     gh.lazySingleton<_i612.AppLogger>(() => _i584.LoggerImpl());
@@ -86,14 +92,14 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i595.GetDeals>(
         () => _i595.GetDeals(gh<_i36.DealsRepository>()));
-    gh.factory<_i308.IsDealLiked>(
-        () => _i308.IsDealLiked(gh<_i36.DealsRepository>()));
+    gh.factory<_i1016.IsDealLiked>(
+        () => _i1016.IsDealLiked(gh<_i36.DealsRepository>()));
     gh.factory<_i676.LikeDeal>(
         () => _i676.LikeDeal(gh<_i36.DealsRepository>()));
     gh.factory<_i339.DealsBloc>(() => _i339.DealsBloc(
           gh<_i595.GetDeals>(),
           gh<_i676.LikeDeal>(),
-          gh<_i308.IsDealLiked>(),
+          gh<_i1016.IsDealLiked>(),
         ));
     return this;
   }

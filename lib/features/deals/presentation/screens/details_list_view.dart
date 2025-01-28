@@ -1,3 +1,4 @@
+import 'package:crispy_bacon_flutter_deals_app/core/platform/vibration_service.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/bloc/deals_bloc.dart';
 import 'package:crispy_bacon_flutter_deals_app/features/deals/presentation/screens/deals_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,9 @@ class DealsListView extends StatelessWidget {
     return Scaffold(
       body: BlocProvider(
         create: (context) => GetIt.instance<DealsBloc>(),
-        child: const DealsListScreen(),
+        child: DealsListScreen(
+          vibrationService: GetIt.instance<VibrationService>(),
+        ),
       ),
     );
   }
