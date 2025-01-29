@@ -36,11 +36,15 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
     if (currentState is DealsLoaded) {
       existingDeals = currentState.unfilteredDeals;
       currentPriceRange = currentState.priceRange;
-    } else if (currentState is DealsLoadingMore) {
-      existingDeals = currentState.existingDeals;
-    }
 
-    emit(DealsLoadingMore(existingDeals: existingDeals));
+      emit(DealsLoaded(
+        unfilteredDeals: existingDeals,
+        filteredDeals: currentState.filteredDeals,
+        hasMore: currentState.hasMore,
+        priceRange: currentPriceRange,
+        isLoadingMore: true,
+      ));
+    }
 
     final Either<Failure, List<Deal>> result = await getDeals(
       page: event.page,
@@ -50,11 +54,13 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
     result.fold(
       (failure) {
         emit(DealsError(_mapFailureToMessage(failure)));
+
         emit(DealsLoaded(
           unfilteredDeals: existingDeals,
           filteredDeals: existingDeals,
           hasMore: true,
           priceRange: currentPriceRange,
+          isLoadingMore: false,
         ));
       },
       (newDeals) {
@@ -66,22 +72,21 @@ class DealsBloc extends Bloc<DealsEvent, DealsState> {
             .values
             .toList();
 
-        final hasMore = newDeals.length == event.pageSize;
-
-        // Apply the current price range filter to the updated list of deals
         final filteredDeals = (currentPriceRange != null)
             ? combinedDeals.where((deal) {
-                final minPrice = currentPriceRange!.minPrice;
-                final maxPrice = currentPriceRange.maxPrice;
-                return deal.price >= minPrice && deal.price <= maxPrice;
+                return deal.price >= currentPriceRange!.minPrice &&
+                      deal.price <= currentPriceRange.maxPrice;
               }).toList()
             : combinedDeals;
+
+        final hasMore = (newDeals.length == event.pageSize) && filteredDeals.isNotEmpty;
 
         emit(DealsLoaded(
           unfilteredDeals: combinedDeals,
           filteredDeals: filteredDeals,
           hasMore: hasMore,
           priceRange: currentPriceRange,
+          isLoadingMore: false,
         ));
       },
     );

@@ -13,16 +13,18 @@ class DealsLoadingMore extends DealsState {
 }
 
 class DealsLoaded extends DealsState {
-  final List<Deal> unfilteredDeals; 
-  final List<Deal> filteredDeals;   
-  final bool hasMore;               
-  final PriceRange? priceRange;     
+  final List<Deal> unfilteredDeals;
+  final List<Deal> filteredDeals;
+  final bool hasMore;
+  final PriceRange? priceRange;
+  final bool isLoadingMore;
 
   DealsLoaded({
     required this.unfilteredDeals,
     required this.filteredDeals,
     this.hasMore = true,
     this.priceRange,
+    this.isLoadingMore = false,
   });
 }
 

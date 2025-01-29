@@ -36,17 +36,18 @@ class _DealsListScreenState extends State<DealsListScreen> {
 
   void _onScroll() {
     final threshold = MediaQuery.of(context).size.height * 0.2;
+    final state = context.read<DealsBloc>().state;
+
+    if (state is DealsLoaded && state.isLoadingMore) return;
 
     if (_scrollController.position.pixels >
         _scrollController.position.maxScrollExtent - threshold) {
-      // Cancel any active debounce timer
       if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-      // Set up a debounce timer
       _debounce = Timer(const Duration(milliseconds: 500), () {
         final state = context.read<DealsBloc>().state;
 
-        if (state is DealsLoaded && state.hasMore) {
+        if (state is DealsLoaded && state.hasMore && !state.isLoadingMore) { 
           _currentPage++;
           context.read<DealsBloc>().add(
             LoadDealsEvent(page: _currentPage, pageSize: _pageSize),
@@ -154,8 +155,10 @@ class _DealsListScreenState extends State<DealsListScreen> {
             Expanded(
               child: BlocBuilder<DealsBloc, DealsState>(
                 builder: (context, state) {
-                  if (state is DealsLoading && _currentPage == 1) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.yellow,));
+                  if (state is DealsInitial) {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.yellow));
+                  } else if (state is DealsLoading && _currentPage == 1) {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.yellow));
                   } else if (state is DealsError) {
                     return ErrorWithRetry(
                       message: state.message,
@@ -170,21 +173,16 @@ class _DealsListScreenState extends State<DealsListScreen> {
                     final hasMore = state is DealsLoaded ? state.hasMore : true;
 
                     if (deals.isEmpty) {
-                      return state is DealsLoadingMore
-                          ? const Center(
-                              child: CircularProgressIndicator(color: AppColors.yellow),
-                            )
-                          : const Center(
-                              child: Text('No deals found.'),
-                            );
+                      return state is DealsLoaded && state.isLoadingMore
+                          ? const Center(child: CircularProgressIndicator(color: AppColors.yellow))
+                          : const Center(child: Text('No deals found. Try adjusting your filter.'));
                     }
-
                     return ListView.builder(
                       controller: _scrollController,
                       itemCount: deals.length + (hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index >= deals.length) {
-                          return const Center(child: CircularProgressIndicator(color: AppColors.yellow,));
+                          return const Center(child: CircularProgressIndicator(color: AppColors.yellow));
                         }
                         final deal = deals[index];
                         return DealCard(deal: deal);
@@ -194,7 +192,7 @@ class _DealsListScreenState extends State<DealsListScreen> {
                     return const Center(child: Text('Something unexpected happened.'));
                   }
                 },
-              ),
+              )
             ),
           ],
         ),
